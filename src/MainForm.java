@@ -65,4 +65,56 @@ public class MainForm {
 
         }
     }
+
+    public int retrieveValue(int x, int y){
+        String text = numbers[x][y].getText();
+        int value = 0;
+        if(!text.isEmpty() && !text.isBlank()){
+            value = Integer.parseInt(text);
+        }
+        return value;
+    }
+
+    public boolean verifySingleNumber(int x, int y){
+        int value = retrieveValue(x,y);
+
+        // verify the numbers inside the same column
+        for(int i = 0; i < 9; i++){
+            if(i == x){
+                continue;
+            }
+            int currentValue = retrieveValue(i,y);
+            if(currentValue != 0 && (currentValue == value)){
+                return false;
+            }
+        }
+
+        // verify the numbers inside the same row
+        for(int j = 0; j < 9; j++){
+            if(j == y){
+                continue;
+            }
+            int currentValue = retrieveValue(x,j);
+            if(currentValue != 0 && (currentValue == value)){
+                return false;
+            }
+        }
+
+        // verify the numbers inside the square
+        int minX = (x/3) * 3;
+        int minY = (y/3) * 3;
+        for (int i = minX; i < minX +3; i++) {
+            for (int j = minY; j < minY + 3; j++) {
+                if (i == x && j == y) {
+                    continue;
+                }
+                int currentValue = retrieveValue(i, j);
+                if (currentValue != 0 && (currentValue == value)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 }

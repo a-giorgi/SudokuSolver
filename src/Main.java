@@ -23,4 +23,5 @@ public class Main {
         mf.pack();
         mf.setVisible(true);
     }
+
 }
