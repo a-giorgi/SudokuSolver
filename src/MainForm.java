@@ -1,12 +1,11 @@
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import java.awt.*;
-import java.text.NumberFormat;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,8 +13,11 @@ public class MainForm {
     public JPanel mainPanel;
     private JPanel sudokuPanel;
     private JButton solveButton;
+    private JButton resetBoardButton;
 
     private JTextField[][] numbers;
+
+    private boolean solved = false;
 
     public MainForm(){
         sudokuPanel.setLayout(new GridLayout(9,9));
@@ -64,6 +66,24 @@ public class MainForm {
             }
 
         }
+        solveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                solved = false;
+                if(!isSolvable()){
+                    JOptionPane.showMessageDialog(Frame.getFrames()[0], "This sudoku has no solution!");
+                    return;
+
+                }
+                findSolution(0,0);
+            }
+        });
+        resetBoardButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resetBoard();
+            }
+        });
     }
 
     public int retrieveValue(int x, int y){
@@ -75,8 +95,7 @@ public class MainForm {
         return value;
     }
 
-    public boolean verifySingleNumber(int x, int y){
-        int value = retrieveValue(x,y);
+    public boolean verifySingleNumber(int x, int y, int value){
 
         // verify the numbers inside the same column
         for(int i = 0; i < 9; i++){
@@ -111,6 +130,52 @@ public class MainForm {
                 int currentValue = retrieveValue(i, j);
                 if (currentValue != 0 && (currentValue == value)) {
                     return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public void findSolution(int x, int y){
+        if(x == 9){
+            solved = true;
+            return;
+        }
+        int nextX = x +((y+1) / 9);
+        int nextY = (y+1) % 9;
+        if(retrieveValue(x,y)!=0){
+            findSolution(nextX,nextY);
+        }else {
+            for (int value = 1; value < 10; value++) {
+                if (verifySingleNumber(x, y, value)) {
+                    numbers[x][y].setText(value + "");
+                    findSolution(nextX, nextY);
+                    if (solved) {
+                        return;
+                    }
+                    numbers[x][y].setText("");
+                }
+            }
+        }
+    }
+
+    public void resetBoard(){
+        for(int i = 0; i < 9; i++){
+            for(int j = 0; j < 9; j++){
+                numbers[i][j].setText("");
+            }
+        }
+    }
+
+    public boolean isSolvable(){
+        for(int i = 0; i < 9; i++){
+            for(int j = 0; j < 9; j++){
+                int value = retrieveValue(i,j);
+                if(value!=0){
+                    boolean result = verifySingleNumber(i,j,value);
+                    if(!result){
+                        return false;
+                    }
                 }
             }
         }
